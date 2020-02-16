@@ -29,9 +29,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="ContentWriter\**" />
-    <EmbeddedResource Remove="ContentWriter\**" />
-    <None Remove="ContentWriter\**" />
+    <None Remove=".gitattributes" />
+    <None Remove=".gitignore" />
   </ItemGroup>
 
 </Project>
