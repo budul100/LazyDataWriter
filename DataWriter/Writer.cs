@@ -18,8 +18,7 @@ namespace DataWriter
 
         #region Public Constructors
 
-        public Writer
-            (T content, string rootElement, string rootNamespace)
+        public Writer(T content, string rootElement, string rootNamespace)
         {
             this.content = content;
             this.rootNamespace = rootNamespace;
@@ -28,8 +27,8 @@ namespace DataWriter
             overrides = GetOverrides(root);
         }
 
-        public Writer(T content) :
-            this(content, null, null)
+        public Writer(T content)
+            : this(content, null, null)
         { }
 
         #endregion Public Constructors
@@ -56,7 +55,7 @@ namespace DataWriter
         {
             var result = new XmlAttributeOverrides();
 
-            if (root != null)
+            if (root != default)
             {
                 var attributes = new XmlAttributes
                 {
@@ -64,6 +63,7 @@ namespace DataWriter
                 };
 
                 result = new XmlAttributeOverrides();
+
                 result.Add(
                     type: typeof(T),
                     attributes: attributes);
@@ -88,7 +88,7 @@ namespace DataWriter
 
                         xmlSerializer.Serialize(
                             xmlWriter: fragementWriter,
-                            o: this.content,
+                            o: content,
                             namespaces: namespaces);
                         result = fragementWriter.ToString();
                     }
@@ -97,7 +97,7 @@ namespace DataWriter
                 {
                     xmlSerializer.Serialize(
                         textWriter: textWriter,
-                        o: this.content,
+                        o: content,
                         namespaces: namespaces);
                     result = textWriter.ToString();
                 }
@@ -133,15 +133,14 @@ namespace DataWriter
 
         private XmlSerializer GetSerializer()
         {
-            var result =
-                overrides != null ?
-                new XmlSerializer(
+            var result = overrides != default
+                ? new XmlSerializer(
                     type: content.GetType(),
                     overrides: overrides,
                     extraTypes: null,
                     root: root,
-                    defaultNamespace: rootNamespace) :
-                new XmlSerializer(content.GetType());
+                    defaultNamespace: rootNamespace)
+                : new XmlSerializer(content.GetType());
 
             return result;
         }

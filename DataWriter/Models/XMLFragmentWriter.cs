@@ -1,11 +1,12 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using System.Xml;
 
 namespace DataWriter.Models
 {
     internal class XmlFragmentWriter
-        : XmlTextWriter
+        : XmlTextWriter, IDisposable
     {
         #region Private Fields
 
