@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using System.Xml;
 
-namespace DataWriter.Models
+namespace DataWriter.Writers
 {
     internal class XmlFragmentWriter
         : XmlTextWriter, IDisposable
@@ -16,14 +16,15 @@ namespace DataWriter.Models
 
         #region Public Constructors
 
-        public XmlFragmentWriter(TextWriter w) : base(w)
+        public XmlFragmentWriter(TextWriter writer) : base(writer)
         { }
 
-        public XmlFragmentWriter(Stream w, Encoding encoding) : base(w, encoding)
+        public XmlFragmentWriter(Stream stream, Encoding encoding)
+            : base(stream, encoding)
         { }
 
-        public XmlFragmentWriter(string filename, Encoding encoding) :
-            base(new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.None), encoding)
+        public XmlFragmentWriter(string filename, Encoding encoding)
+            : base(new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.None), encoding)
         { }
 
         #endregion Public Constructors

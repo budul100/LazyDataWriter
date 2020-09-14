@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 
-namespace DataWriter.Models
+namespace DataWriter.Writers
 {
     internal class UTF8Writer
         : StringWriter

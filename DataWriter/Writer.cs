@@ -1,4 +1,4 @@
-﻿using DataWriter.Models;
+﻿using DataWriter.Writers;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -8,7 +8,6 @@ namespace DataWriter
     {
         #region Private Fields
 
-        private readonly object content;
         private readonly XmlSerializerNamespaces namespaces = new XmlSerializerNamespaces();
         private readonly XmlAttributeOverrides overrides;
         private readonly XmlRootAttribute root;
@@ -18,17 +17,16 @@ namespace DataWriter
 
         #region Public Constructors
 
-        public Writer(T content, string rootElement, string rootNamespace)
+        public Writer(string rootElement, string rootNamespace)
         {
-            this.content = content;
             this.rootNamespace = rootNamespace;
 
             root = GetRootAttribute(rootElement);
             overrides = GetOverrides(root);
         }
 
-        public Writer(T content)
-            : this(content, null, null)
+        public Writer()
+            : this(default, default)
         { }
 
         #endregion Public Constructors
@@ -42,9 +40,13 @@ namespace DataWriter
                 ns: ns);
         }
 
-        public string Get(bool withoutXmlHeader = false)
+        public string Get(T content, bool withoutXmlHeader = false)
         {
-            return GetAsString(withoutXmlHeader);
+            var result = GetAsString(
+                content: content,
+                withoutXmlHeader: withoutXmlHeader);
+
+            return result;
         }
 
         #endregion Public Methods
@@ -72,7 +74,7 @@ namespace DataWriter
             return result;
         }
 
-        private string GetAsString(bool withoutXmlHeader = false)
+        private string GetAsString(T content, bool withoutXmlHeader = false)
         {
             var result = default(string);
 
@@ -90,7 +92,6 @@ namespace DataWriter
                             xmlWriter: fragementWriter,
                             o: content,
                             namespaces: namespaces);
-                        result = fragementWriter.ToString();
                     }
                 }
                 else
@@ -99,8 +100,9 @@ namespace DataWriter
                         textWriter: textWriter,
                         o: content,
                         namespaces: namespaces);
-                    result = textWriter.ToString();
                 }
+
+                result = textWriter.ToString();
             }
 
             return result;
@@ -135,12 +137,12 @@ namespace DataWriter
         {
             var result = overrides != default
                 ? new XmlSerializer(
-                    type: content.GetType(),
+                    type: typeof(T),
                     overrides: overrides,
                     extraTypes: null,
                     root: root,
                     defaultNamespace: rootNamespace)
-                : new XmlSerializer(content.GetType());
+                : new XmlSerializer(typeof(T));
 
             return result;
         }
