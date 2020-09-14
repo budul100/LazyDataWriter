@@ -36,10 +36,9 @@ namespace DataWriterTests
                 StringProperty = "Lorem ipsum",
             };
 
-            var writer = new Writer<TestClass>();
+            var writer = new Writer<TestClass>(withoutXmlHeader: true);
             var result = writer.Get(
-                content: test,
-                withoutXmlHeader: true);
+                content: test);
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(result));
         }

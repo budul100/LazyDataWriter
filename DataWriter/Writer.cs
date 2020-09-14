@@ -12,21 +12,22 @@ namespace DataWriter
         private readonly XmlAttributeOverrides overrides;
         private readonly XmlRootAttribute root;
         private readonly string rootNamespace;
+        private readonly bool withoutXmlHeader;
 
         #endregion Private Fields
 
         #region Public Constructors
 
-        public Writer(string rootElement, string rootNamespace)
+        public Writer(string rootElement, string rootNamespace, bool withoutXmlHeader = false)
         {
             this.rootNamespace = rootNamespace;
-
+            this.withoutXmlHeader = withoutXmlHeader;
             root = GetRootAttribute(rootElement);
             overrides = GetOverrides(root);
         }
 
-        public Writer()
-            : this(default, default)
+        public Writer(bool withoutXmlHeader = false)
+            : this(default, default, withoutXmlHeader)
         { }
 
         #endregion Public Constructors
@@ -40,11 +41,10 @@ namespace DataWriter
                 ns: ns);
         }
 
-        public string Get(T content, bool withoutXmlHeader = false)
+        public string Get(T content)
         {
             var result = GetAsString(
-                content: content,
-                withoutXmlHeader: withoutXmlHeader);
+                content: content);
 
             return result;
         }
@@ -74,7 +74,7 @@ namespace DataWriter
             return result;
         }
 
-        private string GetAsString(T content, bool withoutXmlHeader = false)
+        private string GetAsString(T content)
         {
             var result = default(string);
 
@@ -89,16 +89,16 @@ namespace DataWriter
                         fragementWriter.Formatting = Formatting.Indented;
 
                         xmlSerializer.Serialize(
-                            xmlWriter: fragementWriter,
                             o: content,
+                            xmlWriter: fragementWriter,
                             namespaces: namespaces);
                     }
                 }
                 else
                 {
                     xmlSerializer.Serialize(
-                        textWriter: textWriter,
                         o: content,
+                        textWriter: textWriter,
                         namespaces: namespaces);
                 }
 
