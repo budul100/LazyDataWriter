@@ -1,4 +1,4 @@
-# DataWriter
+# LazyDataWriter
 
 File writer for simple data serialization
 
