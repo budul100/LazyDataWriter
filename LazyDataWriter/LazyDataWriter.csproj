@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-    <AssemblyName>DataWriter</AssemblyName>
+    <AssemblyName>LazyDataWriter</AssemblyName>
     <AssemblyVersion>1.2.0.0</AssemblyVersion>
     <FileVersion>$(AssemblyVersion)</FileVersion>
     <Version>$(AssemblyVersion)</Version>
     <Authors>budul</Authors>
-    <PackageId>budul.DataWriter</PackageId>
+    <PackageId>budul.LazyDataWriter</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/budul100/DataWriter</RepositoryUrl>
+    <RepositoryUrl>https://github.com/budul100/LazyDataWriter</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageTags>File writer, Content serializer, XML writer, Data serializer</PackageTags>
     <Description>File writer for simple data serialization</Description>
