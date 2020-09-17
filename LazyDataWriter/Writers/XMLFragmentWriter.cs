@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using System.Xml;
 
-namespace DataWriter.Writers
+namespace LazyDataWriter.Writers
 {
     internal class XmlFragmentWriter
         : XmlTextWriter, IDisposable

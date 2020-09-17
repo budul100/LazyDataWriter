@@ -1,8 +1,8 @@
-using DataWriter;
+using LazyDataWriter;
 using NUnit.Framework;
 using System;
 
-namespace DataWriterTests
+namespace LazyDataWriterTests
 {
     public class Tests
     {

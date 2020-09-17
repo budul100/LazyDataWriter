@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DataWriterTests
+namespace LazyDataWriterTests
 {
     public class TestClass
     {

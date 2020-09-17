@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 
-namespace DataWriter.Writers
+namespace LazyDataWriter.Writers
 {
     internal class UTF8Writer
         : StringWriter

@@ -1,8 +1,8 @@
-﻿using DataWriter.Writers;
+﻿using LazyDataWriter.Writers;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace DataWriter
+namespace LazyDataWriter
 {
     public class Writer<T>
     {
