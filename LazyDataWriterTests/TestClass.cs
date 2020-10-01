@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Xml.Serialization;
 
 namespace LazyDataWriterTests
 {
+    [XmlRoot(ElementName = "Test", Namespace = "http://www.test.de")]
     public class TestClass
     {
         #region Public Properties

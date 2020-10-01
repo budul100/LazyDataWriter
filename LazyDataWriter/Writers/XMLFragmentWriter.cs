@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 using System.Xml;
 
 namespace LazyDataWriter.Writers
@@ -17,14 +16,6 @@ namespace LazyDataWriter.Writers
         #region Public Constructors
 
         public XmlFragmentWriter(TextWriter writer) : base(writer)
-        { }
-
-        public XmlFragmentWriter(Stream stream, Encoding encoding)
-            : base(stream, encoding)
-        { }
-
-        public XmlFragmentWriter(string filename, Encoding encoding)
-            : base(new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.None), encoding)
         { }
 
         #endregion Public Constructors
