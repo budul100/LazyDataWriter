@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Xml.Serialization;
 
-namespace LazyDataWriterTests
+namespace LazyDataWriterTests.Models
 {
-    [XmlRoot(ElementName = "Test", Namespace = "http://www.test.de")]
+    [XmlType(Namespace = "http://www.test.de")]
     public class TestClass
     {
         #region Public Properties

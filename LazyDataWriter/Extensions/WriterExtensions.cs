@@ -68,16 +68,17 @@ namespace LazyDataWriter.Extensions
 
         public static string GetXmlNamespace(this Type type)
         {
-            var attribute = type.GetCustomAttribute<XmlRootAttribute>();
-            var result = attribute?.Namespace;
+            var result = type.GetCustomAttribute<XmlRootAttribute>()?.Namespace;
+            result = result ?? type.GetCustomAttribute<XmlTypeAttribute>()?.Namespace;
 
             return result;
         }
 
         public static string GetXmlRootElement(this Type type)
         {
-            var attribute = type.GetCustomAttribute<XmlRootAttribute>();
-            var result = attribute?.ElementName ?? type.Name;
+            var result = type.GetCustomAttribute<XmlRootAttribute>()?.ElementName;
+            result = result ?? type.GetCustomAttribute<XmlTypeAttribute>()?.TypeName;
+            result = result ?? type.Name;
 
             return result;
         }

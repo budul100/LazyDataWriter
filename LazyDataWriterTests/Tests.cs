@@ -1,4 +1,5 @@
 using LazyDataWriter;
+using LazyDataWriterTests.Models;
 using NUnit.Framework;
 using System;
 
