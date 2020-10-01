@@ -69,7 +69,11 @@ namespace LazyDataWriter.Extensions
         public static string GetXmlNamespace(this Type type)
         {
             var result = type.GetCustomAttribute<XmlRootAttribute>()?.Namespace;
-            result = result ?? type.GetCustomAttribute<XmlTypeAttribute>()?.Namespace;
+
+            if (string.IsNullOrWhiteSpace(result))
+            {
+                result = type.GetCustomAttribute<XmlTypeAttribute>()?.Namespace;
+            }
 
             return result;
         }
@@ -77,8 +81,16 @@ namespace LazyDataWriter.Extensions
         public static string GetXmlRootElement(this Type type)
         {
             var result = type.GetCustomAttribute<XmlRootAttribute>()?.ElementName;
-            result = result ?? type.GetCustomAttribute<XmlTypeAttribute>()?.TypeName;
-            result = result ?? type.Name;
+
+            if (string.IsNullOrWhiteSpace(result))
+            {
+                result = type.GetCustomAttribute<XmlTypeAttribute>()?.TypeName;
+            }
+
+            if (string.IsNullOrWhiteSpace(result))
+            {
+                result = type.Name;
+            }
 
             return result;
         }
