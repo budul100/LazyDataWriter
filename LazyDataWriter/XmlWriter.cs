@@ -1,6 +1,4 @@
-﻿using LazyDataWriter.Extensions;
-using LazyDataWriter.Writers;
-using System;
+﻿using LazyDataWriter.Writers;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -24,8 +22,7 @@ namespace LazyDataWriter
 
             CreateSerializer<T>(
                 rootElement: rootElement,
-                rootNamespace: rootNamespace,
-                overridesGetter: r => r.GetOverridesXml<T>());
+                rootNamespace: rootNamespace);
         }
 
         public XmlWriter(bool withoutXmlHeader = false)
@@ -54,7 +51,7 @@ namespace LazyDataWriter
                 }
 
                 Namespaces.Add(
-                    prefix: prefix,
+                    prefix: prefix ?? string.Empty,
                     ns: ns);
             }
         }
@@ -70,28 +67,38 @@ namespace LazyDataWriter
 
         #region Protected Methods
 
-        protected void CreateSerializer<U>(string rootElement, string rootNamespace,
-            Func<XmlRootAttribute, XmlAttributeOverrides> overridesGetter)
+        protected void CreateSerializer<TSerialize>(string rootElement, string rootNamespace)
         {
-            if (overridesGetter == default)
-            {
-                throw new ArgumentNullException(nameof(overridesGetter));
-            }
-
             var root = GetRootAttribute(
                 rootElement: rootElement,
                 rootNamespace: rootNamespace);
 
-            var overrides = overridesGetter.Invoke(root);
+            var overrides = GetOverrides(root);
 
             var result = new XmlSerializer(
-                type: typeof(U),
+                type: typeof(TSerialize),
                 overrides: overrides,
                 extraTypes: null,
                 root: root,
                 defaultNamespace: defaultNamespace);
 
             serializer = result;
+        }
+
+        protected virtual XmlAttributeOverrides GetOverrides(XmlRootAttribute root)
+        {
+            var result = new XmlAttributeOverrides();
+
+            var rootAttributes = new XmlAttributes
+            {
+                XmlRoot = root
+            };
+
+            result.Add(
+                type: typeof(T),
+                attributes: rootAttributes);
+
+            return result;
         }
 
         protected XmlRootAttribute GetRootAttribute(string rootElement, string rootNamespace)

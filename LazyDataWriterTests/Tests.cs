@@ -21,7 +21,7 @@ namespace LazyDataWriterTests
             };
 
             var writer = new SoapWriter<TestClass>();
-            writer.AddNamespace("http://www.test.de", "test");
+            //writer.AddNamespace("http://www.test.de", "test");
             var result = writer.Write(test);
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(result));

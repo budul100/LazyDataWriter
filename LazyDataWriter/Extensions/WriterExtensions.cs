@@ -9,48 +9,6 @@ namespace LazyDataWriter.Extensions
     {
         #region Public Methods
 
-        public static XmlAttributeOverrides GetOverridesSoap<T>(this XmlRootAttribute root)
-        {
-            var result = new XmlAttributeOverrides();
-
-            var rootAttributes = new XmlAttributes
-            {
-                XmlRoot = root,
-            };
-
-            result.Add(
-                type: typeof(Envelope<T>),
-                attributes: rootAttributes);
-
-            var bodyAttributes = new XmlAttributes
-            {
-                XmlElements = { GetXmlElementAttribut<T>() },
-            };
-
-            result.Add(
-                type: typeof(Body<T>),
-                member: nameof(Body<T>.Content),
-                attributes: bodyAttributes);
-
-            return result;
-        }
-
-        public static XmlAttributeOverrides GetOverridesXml<T>(this XmlRootAttribute root)
-        {
-            var result = new XmlAttributeOverrides();
-
-            var rootAttributes = new XmlAttributes
-            {
-                XmlRoot = root
-            };
-
-            result.Add(
-                type: typeof(T),
-                attributes: rootAttributes);
-
-            return result;
-        }
-
         public static Envelope<T> GetSoap<T>(this T content)
         {
             var body = new Body<T>
@@ -96,20 +54,5 @@ namespace LazyDataWriter.Extensions
         }
 
         #endregion Public Methods
-
-        #region Private Methods
-
-        private static XmlElementAttribute GetXmlElementAttribut<T>()
-        {
-            var result = new XmlElementAttribute
-            {
-                ElementName = typeof(T).GetXmlRootElement(),
-                Namespace = typeof(T).GetXmlNamespace()
-            };
-
-            return result;
-        }
-
-        #endregion Private Methods
     }
 }
