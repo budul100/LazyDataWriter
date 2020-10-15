@@ -1,4 +1,8 @@
-﻿using LazyDataWriter.Writers;
+﻿using LazyDataWriter.Extensions;
+using LazyDataWriter.Soap;
+using LazyDataWriter.Writers;
+using System;
+using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -8,8 +12,12 @@ namespace LazyDataWriter
     {
         #region Private Fields
 
-        private string defaultNamespace;
+        private readonly XmlSerializerNamespaces allNamespaces = new XmlSerializerNamespaces();
+        private readonly string rootElement;
+        private readonly string rootNamespace;
 
+        private string defaultNamespace;
+        private XmlSerializerNamespaces namespaces;
         private XmlSerializer serializer;
 
         #endregion Private Fields
@@ -18,11 +26,10 @@ namespace LazyDataWriter
 
         public XmlWriter(string rootElement, string rootNamespace = default, bool withoutXmlHeader = false)
         {
-            WithoutXmlHeader = withoutXmlHeader;
+            this.rootElement = rootElement;
+            this.rootNamespace = rootNamespace;
 
-            CreateSerializer<T>(
-                rootElement: rootElement,
-                rootNamespace: rootNamespace);
+            WithoutXmlHeader = withoutXmlHeader;
         }
 
         public XmlWriter(bool withoutXmlHeader = false)
@@ -31,9 +38,16 @@ namespace LazyDataWriter
 
         #endregion Public Constructors
 
+        #region Protected Constructors
+
+        protected XmlWriter()
+        { }
+
+        #endregion Protected Constructors
+
         #region Protected Properties
 
-        protected XmlSerializerNamespaces Namespaces { get; } = new XmlSerializerNamespaces();
+        protected XmlAttributeOverrides overrides { get; } = new XmlAttributeOverrides();
 
         protected bool WithoutXmlHeader { get; set; }
 
@@ -43,14 +57,9 @@ namespace LazyDataWriter
 
         public void AddNamespace(string ns, string prefix = default)
         {
-            if (!string.IsNullOrWhiteSpace(ns) && ns != defaultNamespace)
+            if (!string.IsNullOrWhiteSpace(ns))
             {
-                if (string.IsNullOrWhiteSpace(prefix))
-                {
-                    defaultNamespace = ns;
-                }
-
-                Namespaces.Add(
+                allNamespaces.Add(
                     prefix: prefix ?? string.Empty,
                     ns: ns);
             }
@@ -58,6 +67,10 @@ namespace LazyDataWriter
 
         public virtual string Write(T content)
         {
+            CreateSerializer<T>(
+                rootElement: rootElement,
+                rootNamespace: rootNamespace);
+
             var result = GetString(content);
 
             return result;
@@ -69,62 +82,23 @@ namespace LazyDataWriter
 
         protected void CreateSerializer<TSerialize>(string rootElement, string rootNamespace)
         {
-            var root = GetRootAttribute(
-                rootElement: rootElement,
-                rootNamespace: rootNamespace);
-
-            var overrides = GetOverrides(root);
-
-            var result = new XmlSerializer(
-                type: typeof(TSerialize),
-                overrides: overrides,
-                extraTypes: null,
-                root: root,
-                defaultNamespace: defaultNamespace);
-
-            serializer = result;
-        }
-
-        protected virtual XmlAttributeOverrides GetOverrides(XmlRootAttribute root)
-        {
-            var result = new XmlAttributeOverrides();
-
-            var rootAttributes = new XmlAttributes
+            if (serializer == default)
             {
-                XmlRoot = root
-            };
+                var root = GetRootAttribute(
+                    rootElement: rootElement,
+                    rootNamespace: rootNamespace);
 
-            result.Add(
-                type: typeof(T),
-                attributes: rootAttributes);
+                SetOverrides(root);
 
-            return result;
-        }
+                SetNamespaces();
 
-        protected XmlRootAttribute GetRootAttribute(string rootElement, string rootNamespace)
-        {
-            var result = new XmlRootAttribute();
-
-            if (!string.IsNullOrWhiteSpace(rootNamespace))
-            {
-                if (defaultNamespace == default)
-                {
-                    AddNamespace(
-                        prefix: string.Empty,
-                        ns: rootNamespace);
-
-                    defaultNamespace = rootNamespace;
-                }
-
-                result.Namespace = rootNamespace;
+                serializer = new XmlSerializer(
+                    type: typeof(TSerialize),
+                    overrides: overrides,
+                    extraTypes: null,
+                    root: root,
+                    defaultNamespace: defaultNamespace);
             }
-
-            if (!string.IsNullOrWhiteSpace(rootElement))
-            {
-                result.ElementName = rootElement;
-            }
-
-            return result;
         }
 
         protected string GetString(object content)
@@ -142,7 +116,7 @@ namespace LazyDataWriter
                         serializer.Serialize(
                             o: content,
                             xmlWriter: fragementWriter,
-                            namespaces: Namespaces);
+                            namespaces: namespaces);
                     }
                 }
                 else
@@ -150,7 +124,7 @@ namespace LazyDataWriter
                     serializer.Serialize(
                         o: content,
                         textWriter: textWriter,
-                        namespaces: Namespaces);
+                        namespaces: namespaces);
                 }
 
                 result = textWriter.ToString();
@@ -159,6 +133,97 @@ namespace LazyDataWriter
             return result;
         }
 
+        protected virtual void SetOverrides(XmlRootAttribute root)
+        {
+            var rootAttributes = new XmlAttributes
+            {
+                XmlRoot = root,
+            };
+
+            overrides.Add(
+                type: typeof(T),
+                attributes: rootAttributes);
+
+            SetOverrides(typeof(T));
+        }
+
+        protected void SetOverrides(Type type)
+        {
+            if (type == default)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
+
+            var properties = type.GetProperties()
+                .Where(m => !m.PropertyType.IsValueType)
+                .Where(m => m.PropertyType != typeof(string)).ToArray();
+
+            if (properties.Any())
+            {
+                foreach (var property in properties)
+                {
+                    var attributes = property.PropertyType
+                        .GetAttributes(property.PropertyType == typeof(Body<T>));
+
+                    overrides.Add(
+                        type: type,
+                        member: property.Name,
+                        attributes: attributes);
+
+                    SetOverrides(property.PropertyType);
+                }
+            }
+        }
+
         #endregion Protected Methods
+
+        #region Private Methods
+
+        private XmlRootAttribute GetRootAttribute(string rootElement, string rootNamespace)
+        {
+            var result = new XmlRootAttribute();
+
+            if (!string.IsNullOrWhiteSpace(rootNamespace))
+            {
+                AddNamespace(
+                    prefix: string.Empty,
+                    ns: rootNamespace);
+
+                result.Namespace = rootNamespace;
+            }
+
+            if (!string.IsNullOrWhiteSpace(rootElement))
+            {
+                result.ElementName = rootElement;
+            }
+
+            return result;
+        }
+
+        private void SetNamespaces()
+        {
+            var result = new XmlSerializerNamespaces();
+
+            var resultingNamespaces = allNamespaces
+                .ToArray().GroupBy(n => n.Namespace)
+                .Select(g => g.OrderBy(n => string.IsNullOrWhiteSpace(n.Name)).First()).ToArray();
+
+            foreach (var resultingNamespace in resultingNamespaces)
+            {
+                result.Add(
+                    prefix: resultingNamespace.Name,
+                    ns: resultingNamespace.Namespace);
+
+                if (defaultNamespace == default
+                    && string.IsNullOrWhiteSpace(resultingNamespace.Name))
+                {
+                    defaultNamespace = resultingNamespace.Namespace;
+                }
+            }
+
+            namespaces = result;
+        }
+
+        #endregion Private Methods
     }
 }

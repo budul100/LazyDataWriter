@@ -9,6 +9,26 @@ namespace LazyDataWriter.Extensions
     {
         #region Public Methods
 
+        public static XmlAttributes GetAttributes(this Type type, bool leaveName)
+        {
+            var elementAttribute = new XmlElementAttribute
+            {
+                Namespace = type.GetXmlNamespace()
+            };
+
+            if (!leaveName)
+            {
+                elementAttribute.ElementName = type.GetXmlRootElement();
+            }
+
+            var result = new XmlAttributes
+            {
+                XmlElements = { elementAttribute },
+            };
+
+            return result;
+        }
+
         public static Envelope<T> GetSoap<T>(this T content)
         {
             var body = new Body<T>

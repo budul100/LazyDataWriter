@@ -19,13 +19,9 @@ namespace LazyDataWriter
         {
             WithoutXmlHeader = withoutXmlHeader;
 
-            CreateSerializer<Envelope<T>>(
-                rootElement: Envelope<T>.RootElementName,
-                rootNamespace: Envelope<T>.SoapEnvelopeNs);
-
-            Namespaces.Add(
-                prefix: SoapEnvelopeNsPrefix,
-                ns: Envelope<T>.SoapEnvelopeNs);
+            AddNamespace(
+                ns: Envelope<T>.SoapEnvelopeNs,
+                prefix: SoapEnvelopeNsPrefix);
         }
 
         #endregion Public Constructors
@@ -34,6 +30,10 @@ namespace LazyDataWriter
 
         public override string Write(T content)
         {
+            CreateSerializer<Envelope<T>>(
+                rootElement: Envelope<T>.RootElementName,
+                rootNamespace: Envelope<T>.SoapEnvelopeNs);
+
             var soap = content.GetSoap();
 
             var result = GetString(soap);
@@ -45,53 +45,20 @@ namespace LazyDataWriter
 
         #region Protected Methods
 
-        protected override XmlAttributeOverrides GetOverrides(XmlRootAttribute root)
+        protected override void SetOverrides(XmlRootAttribute root)
         {
-            var result = new XmlAttributeOverrides();
-
             var rootAttributes = new XmlAttributes
             {
                 XmlRoot = root,
             };
 
-            result.Add(
+            overrides.Add(
                 type: typeof(Envelope<T>),
                 attributes: rootAttributes);
 
-            var bodyAttributes = GetBodyAttributes();
-
-            result.Add(
-                type: typeof(Body<T>),
-                member: nameof(Body<T>.Content),
-                attributes: bodyAttributes);
-
-            return result;
+            SetOverrides(typeof(Envelope<T>));
         }
 
         #endregion Protected Methods
-
-        #region Private Methods
-
-        private XmlAttributes GetBodyAttributes()
-        {
-            var ns = typeof(T).GetXmlNamespace();
-
-            AddNamespace(ns);
-
-            var elementAttribute = new XmlElementAttribute
-            {
-                ElementName = typeof(T).GetXmlRootElement(),
-                Namespace = typeof(T).GetXmlNamespace()
-            };
-
-            var result = new XmlAttributes
-            {
-                XmlElements = { elementAttribute },
-            };
-
-            return result;
-        }
-
-        #endregion Private Methods
     }
 }
