@@ -1,5 +1,7 @@
 ﻿using LazyDataWriter.Extensions;
 using LazyDataWriter.Soap;
+using System;
+using System.Linq;
 using System.Xml.Serialization;
 
 namespace LazyDataWriter
@@ -45,7 +47,7 @@ namespace LazyDataWriter
 
         #region Protected Methods
 
-        protected override void SetOverrides(XmlRootAttribute root)
+        protected override void SetRoot(XmlRootAttribute root)
         {
             var rootAttributes = new XmlAttributes
             {
@@ -57,8 +59,39 @@ namespace LazyDataWriter
                 attributes: rootAttributes);
 
             SetOverrides(typeof(Envelope<T>));
+            SetOverrides(typeof(Body<T>));
         }
 
         #endregion Protected Methods
+
+        #region Private Methods
+
+        private void SetOverrides(Type type)
+        {
+            if (type == default)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
+
+            var properties = type.GetProperties()
+                .Where(m => !m.PropertyType.IsValueType)
+                .Where(m => m.PropertyType != typeof(string)).ToArray();
+
+            if (properties.Any())
+            {
+                foreach (var property in properties)
+                {
+                    var attributes = property.PropertyType
+                        .GetAttributes(property.PropertyType == typeof(Body<T>));
+
+                    overrides.Add(
+                        type: type,
+                        member: property.Name,
+                        attributes: attributes);
+                }
+            }
+        }
+
+        #endregion Private Methods
     }
 }

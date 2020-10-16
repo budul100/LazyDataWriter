@@ -1,7 +1,4 @@
-﻿using LazyDataWriter.Extensions;
-using LazyDataWriter.Soap;
-using LazyDataWriter.Writers;
-using System;
+﻿using LazyDataWriter.Writers;
 using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
@@ -23,6 +20,13 @@ namespace LazyDataWriter
         #endregion Private Fields
 
         #region Public Constructors
+
+        public XmlWriter(string rootNamespace, bool withoutXmlHeader = false)
+        {
+            this.rootNamespace = rootNamespace;
+
+            WithoutXmlHeader = withoutXmlHeader;
+        }
 
         public XmlWriter(string rootElement, string rootNamespace = default, bool withoutXmlHeader = false)
         {
@@ -88,7 +92,7 @@ namespace LazyDataWriter
                     rootElement: rootElement,
                     rootNamespace: rootNamespace);
 
-                SetOverrides(root);
+                SetRoot(root);
 
                 SetNamespaces();
 
@@ -133,45 +137,18 @@ namespace LazyDataWriter
             return result;
         }
 
-        protected virtual void SetOverrides(XmlRootAttribute root)
+        protected virtual void SetRoot(XmlRootAttribute root)
         {
-            var rootAttributes = new XmlAttributes
+            if (root != default)
             {
-                XmlRoot = root,
-            };
-
-            overrides.Add(
-                type: typeof(T),
-                attributes: rootAttributes);
-
-            SetOverrides(typeof(T));
-        }
-
-        protected void SetOverrides(Type type)
-        {
-            if (type == default)
-            {
-                throw new ArgumentNullException(nameof(type));
-            }
-
-            var properties = type.GetProperties()
-                .Where(m => !m.PropertyType.IsValueType)
-                .Where(m => m.PropertyType != typeof(string)).ToArray();
-
-            if (properties.Any())
-            {
-                foreach (var property in properties)
+                var rootAttributes = new XmlAttributes
                 {
-                    var attributes = property.PropertyType
-                        .GetAttributes(property.PropertyType == typeof(Body<T>));
+                    XmlRoot = root,
+                };
 
-                    overrides.Add(
-                        type: type,
-                        member: property.Name,
-                        attributes: attributes);
-
-                    SetOverrides(property.PropertyType);
-                }
+                overrides.Add(
+                    type: typeof(T),
+                    attributes: rootAttributes);
             }
         }
 
@@ -181,20 +158,26 @@ namespace LazyDataWriter
 
         private XmlRootAttribute GetRootAttribute(string rootElement, string rootNamespace)
         {
-            var result = new XmlRootAttribute();
+            var result = default(XmlRootAttribute);
 
             if (!string.IsNullOrWhiteSpace(rootNamespace))
             {
                 AddNamespace(
                     prefix: string.Empty,
                     ns: rootNamespace);
-
-                result.Namespace = rootNamespace;
             }
 
             if (!string.IsNullOrWhiteSpace(rootElement))
             {
-                result.ElementName = rootElement;
+                result = new XmlRootAttribute
+                {
+                    ElementName = rootElement
+                };
+
+                if (!string.IsNullOrWhiteSpace(rootNamespace))
+                {
+                    result.Namespace = rootNamespace;
+                }
             }
 
             return result;

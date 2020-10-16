@@ -34,7 +34,7 @@ namespace LazyDataWriterTests.Models
 
         public string StringProperty { get; set; }
 
-        [XmlElement(ElementName = "SubTestClass")]
+        [XmlElement(ElementName = "SubTestClass", Namespace = "http://www.subtest.de")]
         public SubTestClass SubTestClass { get; set; }
 
         #endregion Public Properties

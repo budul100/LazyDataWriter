@@ -1,3 +1,4 @@
+using IVUTrafficNetworkImportService;
 using LazyDataWriter;
 using LazyDataWriterTests.Models;
 using NUnit.Framework;
@@ -10,12 +11,28 @@ namespace LazyDataWriterTests
         #region Public Methods
 
         [Test]
+        public void WriteSoapComplex()
+        {
+            var test = new TrafficNetworkImportRequest
+            {
+                trafficNetwork = new trafficNetwork
+                {
+                    links = new Link[] { new Link { distance = "200" } }
+                }
+            };
+
+            var writer = new SoapWriter<TrafficNetworkImportRequest>();
+            var result = writer.Write(test);
+
+            Assert.IsFalse(string.IsNullOrWhiteSpace(result));
+        }
+
+        [Test]
         public void WriteSoapSimple()
         {
             var test = GetTestClass();
 
             var writer = new SoapWriter<TestClass>();
-            //writer.AddNamespace("http://www.test.de", "test");
             var result = writer.Write(test);
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(result));
@@ -28,6 +45,23 @@ namespace LazyDataWriterTests
 
             var writer = new SoapWriter<TestClass>(withoutXmlHeader: true);
             writer.AddNamespace("http://www.subtest.de", "test");
+            var result = writer.Write(test);
+
+            Assert.IsFalse(string.IsNullOrWhiteSpace(result));
+        }
+
+        [Test]
+        public void WriteXmlComplex()
+        {
+            var test = new TrafficNetworkImportRequest
+            {
+                trafficNetwork = new trafficNetwork
+                {
+                    links = new Link[] { new Link { distance = "200" } }
+                }
+            };
+
+            var writer = new XmlWriter<TrafficNetworkImportRequest>(rootNamespace: "http://intf.mb.ivu.de/network/standardimport/remote");
             var result = writer.Write(test);
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(result));
