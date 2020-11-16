@@ -1,5 +1,6 @@
 ﻿using LazyDataWriter.Soap;
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Xml.Serialization;
 
@@ -20,6 +21,21 @@ namespace LazyDataWriter.Extensions
             {
                 elementAttribute.ElementName = type.GetXmlRootElement();
             }
+
+            var result = new XmlAttributes
+            {
+                XmlElements = { elementAttribute },
+            };
+
+            return result;
+        }
+
+        public static XmlAttributes GetAttributes(this PropertyInfo property)
+        {
+            var elementAttribute = Attribute.GetCustomAttributes(
+                element: property,
+                type: typeof(XmlElementAttribute))
+                .FirstOrDefault() as XmlElementAttribute;
 
             var result = new XmlAttributes
             {

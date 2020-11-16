@@ -1,6 +1,5 @@
 ﻿using LazyDataWriter.Extensions;
 using LazyDataWriter.Soap;
-using System;
 using System.Linq;
 using System.Xml.Serialization;
 
@@ -58,37 +57,50 @@ namespace LazyDataWriter
                 type: typeof(Envelope<T>),
                 attributes: rootAttributes);
 
-            SetOverrides(typeof(Envelope<T>));
-            SetOverrides(typeof(Body<T>));
+            SetSoapOverrides();
+            SetContentOverrides();
         }
 
         #endregion Protected Methods
 
         #region Private Methods
 
-        private void SetOverrides(Type type)
+        private void SetContentOverrides()
         {
-            if (type == default)
-            {
-                throw new ArgumentNullException(nameof(type));
-            }
+            var type = typeof(Body<T>);
 
             var properties = type.GetProperties()
                 .Where(m => !m.PropertyType.IsValueType)
                 .Where(m => m.PropertyType != typeof(string)).ToArray();
 
-            if (properties.Any())
+            foreach (var property in properties)
             {
-                foreach (var property in properties)
-                {
-                    var attributes = property.PropertyType
-                        .GetAttributes(property.PropertyType == typeof(Body<T>));
+                var attributes = property.PropertyType
+                    .GetAttributes(property.PropertyType == typeof(Body<T>));
 
-                    overrides.Add(
-                        type: type,
-                        member: property.Name,
-                        attributes: attributes);
-                }
+                overrides.Add(
+                    type: type,
+                    member: property.Name,
+                    attributes: attributes);
+            }
+        }
+
+        private void SetSoapOverrides()
+        {
+            var type = typeof(Envelope<T>);
+
+            var properties = type.GetProperties()
+                .Where(m => !m.PropertyType.IsValueType)
+                .Where(m => m.PropertyType != typeof(string)).ToArray();
+
+            foreach (var property in properties)
+            {
+                var attributes = property.GetAttributes();
+
+                overrides.Add(
+                    type: type,
+                    member: property.Name,
+                    attributes: attributes);
             }
         }
 
