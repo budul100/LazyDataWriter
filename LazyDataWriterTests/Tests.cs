@@ -51,7 +51,7 @@ namespace LazyDataWriterTests
         }
 
         [Test]
-        public void WriteXmlComplex()
+        public void WriteXmlComplexTrafficNetwork()
         {
             var test = new TrafficNetworkImportRequest
             {
@@ -62,6 +62,34 @@ namespace LazyDataWriterTests
             };
 
             var writer = new XmlWriter<TrafficNetworkImportRequest>(rootNamespace: "http://intf.mb.ivu.de/network/standardimport/remote");
+            var result = writer.Write(test);
+
+            Assert.IsFalse(string.IsNullOrWhiteSpace(result));
+        }
+
+        [Test]
+        public void WriteXmlComplexTrans402()
+        {
+            var test = new TRANS
+            {
+                DATA = new DATA
+                {
+                    GRUNDDATEN = new GRUNDDATEN
+                    {
+                        BETRIEBSBEREICHE = new BETRIEBSBEREICHE
+                        {
+                            BTB = new BTB[]
+                               { new BTB
+                                   {
+                                       KBEZ="TEST",
+                                   }
+                               }
+                        }
+                    }
+                }
+            };
+
+            var writer = new XmlWriter<TRANS>();
             var result = writer.Write(test);
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(result));
