@@ -3,10 +3,7 @@
 SET CONFIGURATION=Release
 
 SET BuildDir=.\LazyDataWriter
-SET AdditionalsDir=.\Additionals
-
-SET HelperScripts=%AdditionalsDir%\Scripts
-SET SetupScripts=%AdditionalsDir%\Setup
+SET ScriptsDir=.\_Scripts
 SET NuGetDir=.
 
 SET ProjectPaths='%BuildDir%\LazyDataWriter.csproj'
@@ -24,7 +21,7 @@ if /i "%VERSIONSELECTION%" == "1" (
 	echo Update minor version
 	echo.
 
-	powershell "%SetupScripts%\Update_VersionMinor.ps1 -projectPaths %ProjectPaths%"
+	powershell "%ScriptsDir%\Update_VersionMinor.ps1 -projectPaths %ProjectPaths%"
 )
 
 GOTO BUILD
@@ -35,7 +32,7 @@ echo.
 echo Clean solution
 echo.
 
-CALL "%HelperScripts%\Clean.bat"
+powershell "%ScriptsDir%\Clean_Folders.ps1 -baseFolder %CD%"
 
 echo.
 echo Build solution
@@ -55,14 +52,14 @@ echo.
 echo Copy NuGet packages
 echo.
 
-del %NuGetDir%\*.nupkg
+del "%NuGetDir%\*.nupkg"
 for /R %cd% %%f in (*.nupkg) do copy %%f %NuGetDir%\
 
 echo.
 echo Update build version
 echo.
 
-powershell "%SetupScripts%\Update_VersionBuild.ps1 -projectPaths %ProjectPaths%"
+powershell "%ScriptsDir%\Update_VersionBuild.ps1 -projectPaths %ProjectPaths%"
 goto BUILDEND
 
 :BUILDEND
