@@ -3,6 +3,7 @@ using LazyDataWriter;
 using LazyDataWriterTests.Models;
 using NUnit.Framework;
 using System;
+using System.Text;
 
 namespace LazyDataWriterTests
 {
@@ -11,7 +12,21 @@ namespace LazyDataWriterTests
         #region Public Methods
 
         [Test]
-        public void WriteSoapComplex()
+        public void ChangeEncoding()
+        {
+            var test = GetTestClass();
+
+            var encodingText = "ISO-8859-1";
+            var encoding = Encoding.GetEncoding(encodingText);
+
+            var writer = new XmlWriter<TestClass>(encoding: encoding);
+            var result = writer.Write(test);
+
+            Assert.IsTrue(result.ToLower().Contains(encodingText.ToLower()));
+        }
+
+        [Test]
+        public void SoapComplex()
         {
             var test = new TrafficNetworkImportRequest
             {
@@ -28,7 +43,7 @@ namespace LazyDataWriterTests
         }
 
         [Test]
-        public void WriteSoapSimple()
+        public void SoapSimple()
         {
             var test = GetTestClass();
 
@@ -39,7 +54,7 @@ namespace LazyDataWriterTests
         }
 
         [Test]
-        public void WriteSoapWithNamespace()
+        public void SoapWithNamespace()
         {
             var test = GetTestClass();
 
@@ -51,7 +66,7 @@ namespace LazyDataWriterTests
         }
 
         [Test]
-        public void WriteXmlComplexTrafficNetwork()
+        public void XmlComplexTrafficNetwork()
         {
             var test = new TrafficNetworkImportRequest
             {
@@ -68,7 +83,7 @@ namespace LazyDataWriterTests
         }
 
         [Test]
-        public void WriteXmlComplexTrans402()
+        public void XmlComplexTrans402()
         {
             var test = new TRANS
             {
@@ -96,7 +111,7 @@ namespace LazyDataWriterTests
         }
 
         [Test]
-        public void WriteXmlSimple()
+        public void XmlSimple()
         {
             var test = GetTestClass();
 
@@ -107,7 +122,7 @@ namespace LazyDataWriterTests
         }
 
         [Test]
-        public void WriteXmlSimpleWithoutHeader()
+        public void XmlSimpleWithoutHeader()
         {
             var test = GetTestClass();
 
@@ -118,7 +133,7 @@ namespace LazyDataWriterTests
         }
 
         [Test]
-        public void WriteXmlWothNamespace()
+        public void XmlWithNamespace()
         {
             var test = GetTestClass();
 

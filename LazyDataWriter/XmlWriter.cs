@@ -1,5 +1,6 @@
 ﻿using LazyDataWriter.Writers;
 using System.Linq;
+using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -10,6 +11,7 @@ namespace LazyDataWriter
         #region Private Fields
 
         private readonly XmlSerializerNamespaces allNamespaces = new XmlSerializerNamespaces();
+        private readonly Encoding encoding;
         private readonly string rootElement;
         private readonly string rootNamespace;
 
@@ -21,23 +23,26 @@ namespace LazyDataWriter
 
         #region Public Constructors
 
-        public XmlWriter(string rootNamespace, bool withoutXmlHeader = false)
+        public XmlWriter(string rootNamespace, bool withoutXmlHeader = false, Encoding encoding = default)
         {
             this.rootNamespace = rootNamespace;
+            this.encoding = encoding;
 
             WithoutXmlHeader = withoutXmlHeader;
         }
 
-        public XmlWriter(string rootElement, string rootNamespace = default, bool withoutXmlHeader = false)
+        public XmlWriter(string rootElement, string rootNamespace = default, bool withoutXmlHeader = false,
+            Encoding encoding = default)
         {
             this.rootElement = rootElement;
             this.rootNamespace = rootNamespace;
+            this.encoding = encoding;
 
             WithoutXmlHeader = withoutXmlHeader;
         }
 
-        public XmlWriter(bool withoutXmlHeader = false)
-            : this(default, default, withoutXmlHeader)
+        public XmlWriter(bool withoutXmlHeader = false, Encoding encoding = default)
+            : this(default, default, withoutXmlHeader, encoding)
         { }
 
         #endregion Public Constructors
@@ -51,7 +56,7 @@ namespace LazyDataWriter
 
         #region Protected Properties
 
-        protected XmlAttributeOverrides overrides { get; } = new XmlAttributeOverrides();
+        protected XmlAttributeOverrides Overrides { get; } = new XmlAttributeOverrides();
 
         protected bool WithoutXmlHeader { get; set; }
 
@@ -98,7 +103,7 @@ namespace LazyDataWriter
 
                 serializer = new XmlSerializer(
                     type: typeof(TSerialize),
-                    overrides: overrides,
+                    overrides: Overrides,
                     extraTypes: null,
                     root: root,
                     defaultNamespace: defaultNamespace);
@@ -109,7 +114,7 @@ namespace LazyDataWriter
         {
             var result = default(string);
 
-            using (var textWriter = new UTF8Writer())
+            using (var textWriter = new DefinedEncodingWriter(encoding))
             {
                 if (WithoutXmlHeader)
                 {
@@ -146,7 +151,7 @@ namespace LazyDataWriter
                     XmlRoot = root,
                 };
 
-                overrides.Add(
+                Overrides.Add(
                     type: typeof(T),
                     attributes: rootAttributes);
             }

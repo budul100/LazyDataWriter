@@ -53,7 +53,7 @@ namespace LazyDataWriter
                 XmlRoot = root,
             };
 
-            overrides.Add(
+            Overrides.Add(
                 type: typeof(Envelope<T>),
                 attributes: rootAttributes);
 
@@ -78,7 +78,7 @@ namespace LazyDataWriter
                 var attributes = property.PropertyType
                     .GetAttributes(property.PropertyType == typeof(Body<T>));
 
-                overrides.Add(
+                Overrides.Add(
                     type: type,
                     member: property.Name,
                     attributes: attributes);
@@ -97,7 +97,7 @@ namespace LazyDataWriter
             {
                 var attributes = property.GetAttributes();
 
-                overrides.Add(
+                Overrides.Add(
                     type: type,
                     member: property.Name,
                     attributes: attributes);
