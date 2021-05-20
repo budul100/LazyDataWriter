@@ -32,7 +32,7 @@ echo.
 echo Clean solution
 echo.
 
-powershell "%ScriptsDir%\Clean_Folders.ps1 -baseFolder %CD%"
+powershell "%ScriptsDir%\CleanFolders.ps1 -baseDir %CD%"
 
 echo.
 echo Build solution
